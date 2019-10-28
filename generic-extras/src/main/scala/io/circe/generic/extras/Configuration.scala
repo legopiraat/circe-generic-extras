@@ -31,12 +31,20 @@ final case class Configuration(
     transformMemberNames = Configuration.kebabCaseTransformation
   )
 
+  def withPascalCaseMemberNames: Configuration = copy(
+    transformMemberNames = Configuration.pascalCaseTransformation
+  )
+
   def withSnakeCaseConstructorNames: Configuration = copy(
     transformConstructorNames = Configuration.snakeCaseTransformation
   )
 
   def withKebabCaseConstructorNames: Configuration = copy(
     transformConstructorNames = Configuration.kebabCaseTransformation
+  )
+
+  def withPascalCaseConstructorNames: Configuration = copy(
+    transformConstructorNames = Configuration.pascalCaseTransformation
   )
 
   def withDefaults: Configuration = copy(useDefaults = true)
@@ -59,6 +67,10 @@ object Configuration {
   val kebabCaseTransformation: String => String = s => {
     val partial = basePattern.matcher(s).replaceAll("$1-$2")
     swapPattern.matcher(partial).replaceAll("$1-$2").toLowerCase
+  }
+
+  val pascalCaseTransformation: String => String = s => {
+    s"${Character.toUpperCase(s.charAt(0))}${s.substring(1)}"
   }
 }
 

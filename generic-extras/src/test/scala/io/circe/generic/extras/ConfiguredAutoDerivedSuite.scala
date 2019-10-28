@@ -74,6 +74,17 @@ class ConfiguredAutoDerivedSuite extends CirceSuite {
       assert(Decoder[ConfigExampleFoo].decodeJson(json) === Right(foo))
   }
 
+  "Configuration#transformMemberNames" should "support member name transformation using PascalCase" in forAll {
+      foo: ConfigExampleFoo =>
+      implicit val pascalCaseConfig: Configuration = Configuration.default.withPascalCaseMemberNames
+
+      import foo._
+      val json = json"""{ "ThisIsAField": $thisIsAField, "a": $a, "b": $b}"""
+
+      assert(Encoder[ConfigExampleFoo].apply(foo) === json)
+      assert(Decoder[ConfigExampleFoo].decodeJson(json) === Right(foo))
+  }
+
   "Configuration#useDefaults" should "support using default values during decoding" in {
     forAll { (f: String, b: Double) =>
       implicit val withDefaultsConfig: Configuration = Configuration.default.withDefaults
@@ -178,6 +189,18 @@ class ConfiguredAutoDerivedSuite extends CirceSuite {
 
       import foo._
       val json = json"""{ "type": "config-example-foo", "thisIsAField": $thisIsAField, "a": $a, "b": $b}"""
+
+      assert(Encoder[ConfigExampleBase].apply(foo) === json)
+      assert(Decoder[ConfigExampleBase].decodeJson(json) === Right(foo))
+  }
+
+  "Configuration#transformConstructorNames" should "support constructor name transformation with PascalCase" in forAll {
+    foo: ConfigExampleFoo =>
+      implicit val kebabCaseConfig: Configuration =
+        Configuration.default.withDiscriminator("type").withPascalCaseConstructorNames
+
+      import foo._
+      val json = json"""{ "type": "ConfigExampleFoo", "thisIsAField": $thisIsAField, "a": $a, "b": $b}"""
 
       assert(Encoder[ConfigExampleBase].apply(foo) === json)
       assert(Decoder[ConfigExampleBase].decodeJson(json) === Right(foo))
